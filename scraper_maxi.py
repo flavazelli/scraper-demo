@@ -5,7 +5,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import re
 import csv
-from concurrent.futures import ThreadPoolExecutor
 
 with open('maxi_scrape.csv', mode='w', newline='', encoding='utf-8') as csvFile:
    csvWriter = csv.writer(csvFile)
