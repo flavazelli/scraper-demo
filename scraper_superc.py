@@ -1,3 +1,4 @@
+# filepath: /scraper-demo/scraper_superc.py
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium_stealth import stealth
@@ -8,7 +9,14 @@ import re
 import time
 import csv
 from random import randint as rand
+from pymongo import MongoClient
+
+# Connect to MongoDB
+client = MongoClient('mongodb://localhost:27017/')
+db = client['local']
+collection = db['products']
 options = webdriver.ChromeOptions()
+
 options.add_argument("start-maximized")
 
 # options.add_argument("--headless")
@@ -26,14 +34,11 @@ stealth(driver,
         fix_hairline=True,
         )
 
-
 with open('superc_scrape.csv', mode='w', newline='', encoding='utf-8') as csvFile:
    csvWriter = csv.writer(csvFile)
-   csvWriter.writerow(['title', 'size', 'regular price', 'sale price', 'size' 'price/unit', 'price/kg', 'price/100g', 'price/100ml'])
-   csvFile.close()
+   csvWriter.writerow(['title', 'size', 'regular price', 'sale price', 'price/unit', 'price/kg', 'price/100g', 'price/100ml'])
 
 pageNumber = 1
-driver = webdriver.Chrome()
 
 while True: 
    time.sleep(rand(1, 5))
@@ -55,11 +60,11 @@ while True:
       size = ""
       brand = ""
       price = ""
-      salePrice = ""
-      pricePerKg = ""
-      pricePerUnit = ""
-      pricePer100g = ""
-      pricePer100ml = ""
+      salePrice = float()
+      pricePerKg = float()
+      pricePerUnit = float()
+      pricePer100g = float()
+      pricePer100ml = float()
 
       if 'data-product-brand' in product.attrs:
          brand = product.attrs['data-product-brand']
@@ -75,11 +80,6 @@ while True:
          if priceReg:
             price = priceReg.group(1)
       
-      # if product.find('span', attrs={'data-testid': 'sale-price'}):
-      #    salePriceReg = re.search(r'\$([^$\/]*)', product.find('span', attrs={'data-testid': 'sale-price'}).text)
-      #    if salePriceReg:
-      #       salePrice = salePriceReg.group(1)
-
       priceMatchPerKg = re.search(r'\$([^$\/]*)\/kg', product.text)
       if priceMatchPerKg:
          pricePerKg = priceMatchPerKg.group(1)
@@ -96,29 +96,24 @@ while True:
       if priceMatchPer100ml:
          pricePer100ml = priceMatchPer100ml.group(1)
       
-      rows.append([f"{brand} {title}",size, price, salePrice, pricePerUnit, pricePerKg, pricePer100g, pricePer100ml])
+      rows.append([f"{brand} {title}", size, price, salePrice, pricePerUnit, pricePerKg, pricePer100g, pricePer100ml])
+      # Write to MongoDB
+      collection.insert_one({
+         'brand':brand,
+         'title': title,
+         'size': size,
+         'regular_price': price,
+         'sale_price': salePrice,
+         'price_per_unit': pricePerUnit,
+         'price_per_kg': pricePerKg,
+         'price_per_100g': pricePer100g,
+         'price_per_100ml': pricePer100ml
+      })
 
    with open('superc_scrape.csv', mode='a', newline='', encoding='utf-8') as csvFile: 
       csvWriter = csv.writer(csvFile)
       csvWriter.writerows(rows)
-      csvFile.close()
    
-   pageNumber = pageNumber + 1
-  
+   pageNumber += 1
 
 driver.quit()
-
-
-      
-         
-
-
-
-
-
-
-
-
-
-
-

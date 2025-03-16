@@ -34,11 +34,11 @@ while True:
          size = ""
          brand = ""
          price = product.find('div', attrs={'data-testid': 'price-product-tile'}).text
-         salePrice = ""
-         pricePerKg = ""
-         pricePerUnit = ""
-         pricePer100g = ""
-         pricePer100ml = ""
+         salePrice = float()
+         pricePerKg = float()
+         pricePerUnit = float()
+         pricePer100g = float()
+         pricePer100ml = float()
 
          if product.find('p', attrs={'data-testid': 'product-brand'}):
             brand = product.find('p', attrs={'data-testid': 'product-brand'}).text
@@ -54,7 +54,7 @@ while True:
          if product.find('span', attrs={'data-testid': 'sale-price'}):
             salePriceReg = re.search(r'\$([^$\/]*)', product.find('span', attrs={'data-testid': 'sale-price'}).text)
             if salePriceReg:
-               salePrice = salePriceReg.group(1)
+                salePrice = salePriceReg.group(1)
 
          priceMatchPerKg = re.search(r'\$([^$\/]*)\/1kg', product.text)
          if priceMatchPerKg:
