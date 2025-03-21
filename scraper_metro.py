@@ -1,49 +1,77 @@
 
-from curl_cffi import requests
-import time
-import re
 from bs4 import BeautifulSoup
-import random
+from selenium_stealth import stealth
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import re
+from item import Item
+from scraper_utils import connect_to_mongodb, setup_webdriver
 
-# Send a GET request to the URL
-# Read the proxies from the file
-with open('valid_proxies.txt', 'r') as file:
-   proxies = file.read().splitlines()
+# Connect to MongoDB
+collection = connect_to_mongodb()
+driver = setup_webdriver()
 
-   # Choose a random proxy from the list
-   proxy = random.choice(proxies)   
+pageNumber = 1
 
-   print(f'Using proxy: {proxy}')
+while True: 
+   driver.get(f'https://www.metro.ca/en/online-grocery/search-page-{pageNumber}')
 
-   pageNumber = 1
-   # Send a GET request to the URL using the chosen proxy
-   response = requests.get(f'https://www.metro.ca/en/online-grocery/search-page-{pageNumber}', impersonate=random.choice(["safari", "chrome", "edge", "firefox"]))
+   WebDriverWait(driver, 180).until(
+      EC.visibility_of_element_located((By.CLASS_NAME, "tile-productx"))
+   )
 
-   # Parse the HTML content using BeautifulSoup
-   soup = BeautifulSoup(response.text, 'html.parser')
+   pageSource = driver.page_source
+   soup = BeautifulSoup(pageSource, 'html.parser')
+   products = soup.select(".tile-product")
 
-   print(soup.prettify())
+   if not products:
+      break
 
-   while True:
-      try:
-         print('Page:', pageNumber)
-         products = soup.css.select(".tile-product")
-         for product in products:
-            # for attr in product.attrs:
-            #    if "data-" in attr:
-            #       print(f"{attr} - {product.attrs[attr]}")
-            #       # Print the JSON object
+   for product in products:
+      item = Item('metro')
 
-            print("Item: " + product.attrs['data-product-name'] +  ", " + "Price: " + product.css.select('.pricing__secondary-price')[0].text.replace('\n', '').replace(' ', '').strip())
-         pageNumber +=1
-         time.sleep(random.randint(5, 10));
-         response = requests.get(f'https://www.metro.ca/en/online-grocery/search-page-{pageNumber}', impersonate=random.choice(["safari", "chrome", "edge", "firefox"]))
+      item.name = product.attrs['data-product-name'].strip().replace("\"", "")
+   
+      price = product.find('div', attrs={'data-testid': 'price-product-tile'}).text
 
-            # Parse the HTML content using BeautifulSoup
-         soup = BeautifulSoup(response.text, 'html.parser')
-      except:
-         break
+      if product.attrs['data-product-brand']:
+         item.brand = product.attrs['data-product-brand'].strip().replace("\"", "")
       
+      if product.find('span', class_='head__unit-details'):
+         item.size = product.find('span', class_='head__unit-details').text
+
+      if product.find('span', attrs={'data-testid': 'was-price'}):
+         priceReg = re.search(r'(?<=\$)(\d+(\.\d{1,2})?)', product.find('span', attrs={'data-testid': 'was-price'}).text)
+         if priceReg:
+            item.regular_price = priceReg.group(1)
+      
+      if product.find('span', attrs={'data-testid': 'sale-price'}):
+         salePriceReg = re.search(r'(?<=\$)(\d+(\.\d{1,2})?)', product.find('span', attrs={'data-testid': 'sale-price'}).text)
+         if salePriceReg:
+               item.sale_price = salePriceReg.group(1)
+
+      priceMatchPerKg = re.search(r'\$([^$\/]*)\/1kg', product.find('div', class_='pricing__secondary-price').text)
+      if priceMatchPerKg:
+         item.price_per_kg = priceMatchPerKg.group(1)
+      
+      priceMatchPerUnit = re.search(r'\$([^$\/]*)\/un.', product.find('div', class_='pricing__secondary-price').text)
+      if priceMatchPerUnit:
+         item.price_per_unit = priceMatchPerUnit.group(1)
+      
+      priceMatchPer100g = re.search(r'\$([^$\/]*)\/100g', product.find('div', class_='pricing__secondary-price').text)
+      if priceMatchPer100g:
+         item.price_per_100g = priceMatchPer100g.group(1)
+
+      priceMatchPer100ml = re.search(r'\$([^$\/]*)\/100ml', product.find('div', class_='pricing__secondary-price').text)
+      if priceMatchPer100ml:
+         item.price_per_100ml = priceMatchPer100ml.group(1)
+   
+      collection.insert_one(item.to_mongo_dict())
+
+   pageNumber = pageNumber + 1
+ 
+driver.quit()
     
 
 
