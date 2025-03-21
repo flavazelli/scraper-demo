@@ -5,10 +5,12 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
 from langchain.chains import ConversationalRetrievalChain
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def get_chatbot_chain():
-    os.environ["OPENAI_API_KEY"] = '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'
 
     loader = MongodbLoader(
         connection_string="mongodb://localhost:27017/",
