@@ -1,6 +1,6 @@
 # scraper-demo Project
 
-This project is a web scraper that extracts product information from a website using Selenium and BeautifulSoup. The extracted data is saved to a CSV file for further analysis.
+This project is a web scraper that extracts product information from a website using Selenium and BeautifulSoup. The extracted data is saved to a mongo db
 
 ## Requirements
 
