@@ -52,9 +52,25 @@ scraper-demo
    docker-compose up -d
    ```
 
+5. **Rename the `.env.example` file:**
+
+   In the project directory, rename the `.env.example` file to `.env`:
+
+   ```bash
+   mv .env.example .env
+   ```
+
+6. **Run MongoDB using Docker:**
+
+   Ensure you have Docker installed and running. Then, in the project directory, run:
+
+   ```bash
+   docker-compose up -d
+   ```
+
    This command will start the MongoDB service defined in `docker-compose.yml`.
 
-5. **Run the scraper:**
+7. **Run the scraper:**
 
    After the MongoDB service is up, you can run the scraper:
 
@@ -64,10 +80,20 @@ scraper-demo
 
    The scraped data will be saved to the mongo database in the `products` collection
 
+8. **(Optional) Test the chat bot:**
+
+   Add an OpenAI key to your .env file. If you don't have one, visit [OpenAI](https://platform.openai.com/docs/overview) and create an account. Then navigate to [API Keys](https://platform.openai.com/settings/organization/api-keys) and create a key.
+   Once there is enough data in the database, you can try playing around with the chatbot
+
+    ```bash
+   python langchain_chain.py
+   ```
+
 ## Notes
 
 - The MongoDB service can be accessed at `localhost:27017` by default. Adjust the connection settings in your application if necessary.
 - [Download MongoDB Compass](https://www.mongodb.com/try/download/compass) as a GUI to easily view the database entries
 - To see what is happening in the container, paste this `http://localhost:7900/?autoconnect=1&resize=scale&password=secret⁠` in your browser
+
 
 
