@@ -8,6 +8,13 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-
+  selenium:
+    image: seleniarm/standalone-chromium:latest
+    container_name: chrome
+    ports:
+      - "4444:4444"
+      - "7900:7900"
+      - "5900:5900"
+    shm_size: 2gb
 volumes:
   mongo_data:

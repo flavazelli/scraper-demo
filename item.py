@@ -155,4 +155,7 @@ class Item:
             mongo_dict['price_per_100g'] = self._price_per_100g
         if self._price_per_unit is not None:
             mongo_dict['price_per_unit'] = self._price_per_unit
+
+        mongo_dict['human_readable'] = ', '.join(f"{k}: {v}" for k, v in mongo_dict.items()).replace('_', ' ')
+        
         return mongo_dict
