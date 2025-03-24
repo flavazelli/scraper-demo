@@ -68,5 +68,6 @@ scraper-demo
 
 - The MongoDB service can be accessed at `localhost:27017` by default. Adjust the connection settings in your application if necessary.
 - [Download MongoDB Compass](https://www.mongodb.com/try/download/compass) as a GUI to easily view the database entries
+- To see what is happening in the container, click [here](http://localhost:7900/?autoconnect=1&resize=scale&password=secret⁠)
 
 
