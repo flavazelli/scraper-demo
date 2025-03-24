@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from item import Item
 import time
 import random
-from selenium_stealth import stealth
+import undetected_chromedriver as uc
 
 def connect_to_mongodb():
     client = MongoClient('mongodb://localhost:27017/')
@@ -17,12 +17,10 @@ def connect_to_mongodb():
 
 def setup_webdriver():
     options = webdriver.ChromeOptions()
-    options.add_argument("start-maximized")
-    # options.add_argument("--headless")
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])
-    options.add_experimental_option('useAutomationExtension', False)
-
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Remote(
+    command_executor='http://127.0.0.1:4444',
+    options=options
+    )
     return driver
 
 def launch_scraper(link, productClass, store, parseFunction):
@@ -30,15 +28,7 @@ def launch_scraper(link, productClass, store, parseFunction):
     pageNumber = 1
     driver = setup_webdriver()
     collection = connect_to_mongodb()
-    stealth(driver,
-        languages=["en-US", "en"],
-        vendor="Google Inc.",
-        platform="Win32",
-        webgl_vendor="Intel Inc.",
-        renderer="Intel Iris OpenGL Engine",
-        fix_hairline=True,
-    )
-    
+ 
     while True: 
         time.sleep(random.randint(1,5))
 
@@ -61,7 +51,7 @@ def launch_scraper(link, productClass, store, parseFunction):
                 parseFunction(product, item)
                 collection.insert_one(item.to_mongo_dict())
             except Exception as e:
-                print(product)
+                print(e)
         pageNumber += 1
         
     driver.quit()
