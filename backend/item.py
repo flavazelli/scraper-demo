@@ -1,3 +1,5 @@
+from datetime import datetime
+
 class Item:   
     """
     A class to represent an item with various pricing attributes.
@@ -157,5 +159,7 @@ class Item:
             mongo_dict['price_per_unit'] = self._price_per_unit
 
         mongo_dict['human_readable'] = ', '.join(f"{k}: {v}" for k, v in mongo_dict.items()).replace('_', ' ')
+
+        mongo_dict['date_uploaded'] = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
         
         return mongo_dict
