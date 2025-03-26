@@ -25,7 +25,7 @@ input {
   const formFieldValue = ref('')
   const isLoading = ref(false)
 
-  const submit = async (event) => {
+  const submit = async () => {
     try {
         isLoading.value = true
         const response = await fetch('http://localhost:8000/question', {
