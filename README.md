@@ -89,7 +89,7 @@ scraper-demo
    python langchain_chain.py
    ```
 
-   This will load the chatbot in the termina. You will see a prompt ```Prompt (or type "exit" to quit):```
+   This will load the chatbot in the terminal. You will see a prompt ```Give me a shopping list  (or type "exit" to quit):```
    Type in a query about groceries, ex: `give me a list of where to shop for organic bananas, 2% milk, whole wheat bread, butter and red wine`
 
 ## Notes
