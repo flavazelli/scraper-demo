@@ -8,6 +8,10 @@ from item import Item
 import time
 import random
 import undetected_chromedriver as uc
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 def connect_to_mongodb():
     client = MongoClient('mongodb://localhost:27017/')
@@ -16,11 +20,15 @@ def connect_to_mongodb():
     return collection
 
 def setup_webdriver():
-    options = webdriver.ChromeOptions()
-    driver = webdriver.Remote(
-    command_executor='http://127.0.0.1:4444',
-    options=options
-    )
+
+    if os.getenv('USE_STANDALONE_CHROME_DRIVER') == 'true':
+        options = webdriver.ChromeOptions()
+        driver = webdriver.Remote(
+        command_executor='http://127.0.0.1:4444',
+        options=options
+        )
+    else:
+        driver = uc.Chrome()
     return driver
 
 def launch_scraper(link, productClass, store, parseFunction):
