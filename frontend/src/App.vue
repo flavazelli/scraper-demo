@@ -70,7 +70,7 @@ input {
 <template>
   <div class="container">
     <InputText :disabled=isLoading placeholder="Type grocery list here or click below to upload picture of grocery list..." type="text" v-model="formFieldValue" @keyup.enter="submit"/>
-    <FileUpload :disabled=isLoading  mode="basic" name="demo[]" accept="image/*" :maxFileSize="1000000" @upload="onUpload" :auto="true" chooseLabel="Browse" />
+    <FileUpload :disabled=isLoading mode="basic" name="demo[]" accept="image/*" :maxFileSize="1000000" @upload="onUpload" :auto="true" chooseLabel="Browse" />
     <ProgressSpinner v-if=isLoading />
     <VueMarkdown class= "vue-markdown " :source="markdown" />
   </div>

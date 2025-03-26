@@ -6,13 +6,17 @@ This project is a web scraper that extracts product information from a website u
 
 - Python 3.x
 - Docker (for running MongoDB)
+- A node package manager (pnpm)
 
 ## Project Structure
 
 ```
 scraper-demo
-├── scraper_superc.py       # Web scraping logic
-├── docker-compose.yml      # Docker configuration for MongoDB
+├── backend
+    ├── scaper_*.py         # Web scraping logic
+    ├── docker-compose.yml  # Docker setup for mongo and standalone chrome
+├── frontend                
+    ├──  Vue app            # Frontend Client App
 └── README.md               # Project documentation
 ```
 
@@ -30,6 +34,7 @@ scraper-demo
    It is recommended to use a virtual environment to manage dependencies. Run the following commands:
 
    ```bash
+   cd backend
    python -m venv venv
    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    ```
@@ -44,15 +49,7 @@ scraper-demo
 
    Note: Create a `requirements.txt` file with the necessary dependencies if it doesn't exist.
 
-4. **Run MongoDB using Docker:**
-
-   Ensure you have Docker installed and running. Then, in the project directory, run:
-
-   ```bash
-   docker-compose up -d
-   ```
-
-5. **Rename the `.env.example` file:**
+4. **Rename the `.env.example` file:**
 
    In the project directory, rename the `.env.example` file to `.env`:
 
@@ -60,7 +57,7 @@ scraper-demo
    mv .env.example .env
    ```
 
-6. **Run MongoDB using Docker:**
+5. **Run MongoDB using Docker:**
 
    Ensure you have Docker installed and running. Then, in the project directory, run:
 
@@ -69,6 +66,14 @@ scraper-demo
    ```
 
    This command will start the MongoDB service defined in `docker-compose.yml`.
+
+6. **Run the fast api server:**
+
+   ```bash
+   fastapi dev
+   ```
+
+   This command will start the  fast api server which will be used to communicate with the web client
 
 7. **Run the scraper:**
 
@@ -80,17 +85,21 @@ scraper-demo
 
    The scraped data will be saved to the mongo database in the `products` collection
 
-8. **(Optional) Test the chat bot:**
+8. **Compile and create the frontend app:**
 
-   Add an OpenAI key to your .env file. If you don't have one, visit [OpenAI](https://platform.openai.com/docs/overview) and create an account. Then navigate to [API Keys](https://platform.openai.com/settings/organization/api-keys) and create a key.
-   Once there is enough data in the database, you can try playing around with the chatbot
-
-    ```bash
-   python langchain_chain.py
+   ```bash
+   cd ../frontend
    ```
 
-   This will load the chatbot in the terminal. You will see a prompt ```Give me a shopping list  (or type "exit" to quit):```
-   Type in a query about groceries, ex: `give me a list of where to shop for organic bananas, 2% milk, whole wheat bread, butter and red wine`
+  follow the steps in the `README.md` file 
+
+
+9. **(Optional) Test the chat bot:**
+
+   Add an OpenAI key to your .env file in the `backend` folder. If you don't have one, visit [OpenAI](https://platform.openai.com/docs/overview) and create an account. Then navigate to [API Keys](https://platform.openai.com/settings/organization/api-keys) and create a key.
+   Once there is enough data in the database, you can try playing around with the chatbot
+
+   Visit [localhost:](http://localhost:5173/) and follow type in your grocery list...
 
 ## Notes
 
