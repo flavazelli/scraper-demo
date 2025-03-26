@@ -1,19 +1,14 @@
 from langchain_community.document_loaders.mongodb import MongodbLoader
-from langchain.memory import ConversationBufferMemory
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
 from langchain.prompts import ChatPromptTemplate
 from langchain.load import dumps, loads
 from operator import itemgetter
-import nest_asyncio
 import sys
-
-nest_asyncio.apply()
 
 load_dotenv()
 
