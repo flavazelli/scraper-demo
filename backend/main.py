@@ -10,11 +10,7 @@ from fastapi import UploadFile
 from typing import Union
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
-
 import base64
-
-model = ChatOpenAI(model="gpt-4o")
-
 
 class Question(BaseModel):
     question: Union[str, None]
