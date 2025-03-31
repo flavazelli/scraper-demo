@@ -91,17 +91,18 @@ class SeleniumOverride(SeleniumURLLoader):
                 chrome_options = ChromeOptions()
 
                 with self.lock:
-                    if os.getenv('USE_PROXY') and os.getenv('PROXY_URL') is not None:
+                    if os.getenv('USE_PROXY', 'False') == 'True'and os.getenv('PROXY_URL') is not None:
+                        print('proxy true')
                         username = os.getenv('PROXY_USERNAME')
                         password = os.getenv('PROXY_PASSWORD')
                         endpoint = os.getenv('PROXY_URL')
                         port = os.getenv('PROXY_PORT')
                         # Initialize SeleniumAuthenticatedProxy
-                        proxy_helper = SeleniumAuthenticatedProxy(proxy_url=f"http://{username}:{password}@{endpoint}:{port}")
+                        proxy_helper = SeleniumAuthenticatedProxy(proxy_url=f"https://{username}:{password}@{endpoint}:{port}")
                         # Enrich Chrome options with proxy authentication
                         proxy_helper.enrich_chrome_options(chrome_options) 
 
-                    if os.getenv('USE_PROXY') and os.getenv('PROXY_URL') is None:
+                    elif os.getenv('USE_PROXY') and os.getenv('PROXY_URL') is None:
                         #TODO return validate proxies
                         pass
 
