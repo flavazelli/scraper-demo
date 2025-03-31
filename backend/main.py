@@ -4,7 +4,7 @@ from apscheduler.triggers.cron import CronTrigger
 import time
 import atexit
 from pydantic import BaseModel
-from langchain_chain import query_bot
+from langchain_chain import query_bot, fetch_data
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import UploadFile
 from typing import Union
@@ -23,19 +23,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-scheduler = BackgroundScheduler()
 
 #TODO: refactor scraper so they can launch once a day
+# scheduler = BackgroundScheduler()
 
-def print_time():
-    print(f"The current time is {time.ctime()}")
+# def print_time():
+#     print(f"The current time is {time.ctime()}")
 
-scheduler.add_job(print_time, CronTrigger(minute="*/1")) 
-scheduler.start()
+# # scheduler.add_job(print_time, CronTrigger(minute="*/1")) 
+# # scheduler.start()
 
-@atexit.register
-def shutdown():
-    scheduler.shutdown()
+# @atexit.register
+# def shutdown():
+#     scheduler.shutdown()
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
