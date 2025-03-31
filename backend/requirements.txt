@@ -175,6 +175,7 @@ rich==13.9.4
 rich-toolkit==0.13.2
 rpds-py==0.23.1
 selenium==4.29.0
+selenium-authenticated-proxy==1.1.2
 selenium-stealth==1.0.6
 Send2Trash==1.8.3
 shellingham==1.5.4
