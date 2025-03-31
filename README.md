@@ -99,7 +99,7 @@ scraper-demo
    Add an OpenAI key to your .env file in the `backend` folder. If you don't have one, visit [OpenAI](https://platform.openai.com/docs/overview) and create an account. Then navigate to [API Keys](https://platform.openai.com/settings/organization/api-keys) and create a key.
    Once there is enough data in the database, you can try playing around with the chatbot
 
-   Visit [localhost:](http://localhost:5173/) and follow type in your grocery list...
+   Visit [localhost:5173](http://localhost:5173/) and follow type in your grocery list...
 
 ## Notes
 

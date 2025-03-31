@@ -8,6 +8,13 @@ from dotenv import load_dotenv
 from langchain.prompts import ChatPromptTemplate
 from langchain.load import dumps, loads
 from operator import itemgetter
+import concurrent.futures
+from urllib.parse import quote
+from selenium_override import SeleniumOverride
+from langchain_core.documents import Document
+from typing import List
+from threading import Lock
+import os
 
 load_dotenv()
 
@@ -21,7 +28,6 @@ def get_unique_union(documents: list[list]):
     return [loads(doc) for doc in unique_docs]
 
 def query_bot(question):
-
     loader = MongodbLoader(
         connection_string="mongodb://localhost:27017/",
         db_name='local', 
@@ -35,7 +41,7 @@ def query_bot(question):
     to help retrieve relevant documents from a vector database with the goal of improving the search accuracy of their query. 
     The questions should be phrased in a way that would help the user find the best deals on groceries, by asking which store has the best price for each item.
     Price per kg, price per unit, price per 100g, and price per 100ml are all different ways to measure the price of a product, and the same unit of measurement should be used when comparing prices of similar products. 
-    The output should only include these questions separated by newlines. Include only as many questions as there are items on the list. Original question: {question}"""
+    The output should only include these questions separated by newlines. Include one question per there item on the list. Original question: {question}"""
     prompt_perspectives = ChatPromptTemplate.from_template(multi_query_template)
 
     generate_queries = (
@@ -58,7 +64,7 @@ def query_bot(question):
 
     classification_prompt=ChatPromptTemplate.from_template(classification_template)
 
-    documents = loader.load()
+    documents = fetch_data(question)
 
     vectorstore = FAISS.from_documents(documents, OpenAIEmbeddings())
 
@@ -96,7 +102,7 @@ def query_bot(question):
     """
 
     final_prompt = ChatPromptTemplate.from_template(template)
-    llm=ChatOpenAI(model_name="o3-mini", reasoning_effort="medium")
+    llm=ChatOpenAI(model_name="o3-mini", reasoning_effort="high")
 
     final_chain = (
     {"context": triage_chain} 
@@ -107,3 +113,37 @@ def query_bot(question):
 
     return final_chain.invoke({"question":question})
 
+
+def fetch_data(query):
+    docs: List[Document] = list()
+
+
+    for item in query.split(","):
+        queryString = quote(item)
+        URLS = [
+            {"url": f'https://www.maxi.ca/en/search?search-bar={queryString}',"attribute": "class", "search": "chakra-linkbox",  "pclass" : "chakra-linkbox css-yxqevf"},
+            {"url" :f'https://www.metro.ca/en/online-grocery/search?filter={queryString}',"attribute": "class", "search": "tile-product", "pclass" : "default-product-tile tile-product item-addToCart  "},
+            {"url" :f'https://www.provigo.ca/en/search?search-bar={queryString}', "attribute": "class", "search": "chakra-linkbox",  "pclass" : "chakra-linkbox css-yxqevf"},
+            {"url" :f'https://www.walmart.ca/en/search?q={queryString}', "attribute": "attribute", "search": "",  "pclass" : "chakra-linkbox"},
+            {"url" :f'https://www.superc.ca/en/search?filter={queryString}',"attribute": "class", "search": "tile-product", "pclass" : "default-product-tile tile-product item-addToCart  "},
+            {"url" :f'https://www.iga.net/search?k={queryString}',"attribute": "class", "search": "item-product", "pclass": "item-product"}
+        ]
+        
+        lock = Lock()
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+            # Start the load operations and mark each future with its URL
+            future_to_url = {executor.submit(load_url,item["url"], item["attribute"],  item["search"], item["pclass"], lock): item for item in URLS}
+            for future in concurrent.futures.as_completed(future_to_url):
+                item = future_to_url[future]
+                data = future.result()
+                for doc in data :
+                    docs.append(doc)
+    return docs    
+
+
+# Retrieve a single page and report the URL and contents
+def load_url(url, attribute, search_class, product_class, lock):
+    loader = SeleniumOverride([url], proxy=os.getenv('PROXY_URL'), lock=lock)
+    documents = loader.load(attribute, search_class, product_class)
+    return documents
